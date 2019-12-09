@@ -347,7 +347,7 @@ size_t nullseat_output(
     Seat *seat, bool is_stderr, const void *data, size_t len) { return 0; }
 bool nullseat_eof(Seat *seat) { return true; }
 int nullseat_get_userpass_input(
-    Seat *seat, prompts_t *p, bufchain *input) { return 0; }
+    Seat *seat, prompts_t *p, bufchain *input, bool notty) { return 0; }
 void nullseat_notify_remote_exit(Seat *seat) {}
 void nullseat_connection_fatal(Seat *seat, const char *message) {}
 void nullseat_update_specials_menu(Seat *seat) {}

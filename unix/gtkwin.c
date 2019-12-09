@@ -336,13 +336,13 @@ static bool gtk_seat_eof(Seat *seat)
 }
 
 static int gtk_seat_get_userpass_input(Seat *seat, prompts_t *p,
-                                       bufchain *input)
+                                       bufchain *input, int notty)
 {
     GtkFrontend *inst = container_of(seat, GtkFrontend, seat);
     int ret;
     ret = cmdline_get_passwd_input(p);
     if (ret == -1)
-        ret = term_get_userpass_input(inst->term, p, input);
+        ret = term_get_userpass_input(inst->term, p, input, notty);
     return ret;
 }
 

@@ -589,6 +589,7 @@ void save_open_settings(settings_w *sesskey, Conf *conf)
     write_setting_b(sesskey, "UserNameFromEnvironment", conf_get_bool(conf, CONF_username_from_env));
     write_setting_s(sesskey, "LocalUserName", conf_get_str(conf, CONF_localusername));
     write_setting_b(sesskey, "NoPTY", conf_get_bool(conf, CONF_nopty));
+    write_setting_b(sesskey, "NoTTY", conf_get_bool(conf, CONF_notty));
     write_setting_b(sesskey, "Compression", conf_get_bool(conf, CONF_compression));
     write_setting_b(sesskey, "TryAgent", conf_get_bool(conf, CONF_tryagent));
     write_setting_b(sesskey, "AgentFwd", conf_get_bool(conf, CONF_agentfwd));
@@ -937,6 +938,7 @@ void load_open_settings(settings_r *sesskey, Conf *conf)
          conf, CONF_username_from_env);
     gpps(sesskey, "LocalUserName", "", conf, CONF_localusername);
     gppb(sesskey, "NoPTY", false, conf, CONF_nopty);
+    gppb(sesskey, "NoTTY", false, conf, CONF_notty);
     gppb(sesskey, "Compression", false, conf, CONF_compression);
     gppb(sesskey, "TryAgent", true, conf, CONF_tryagent);
     gppb(sesskey, "AgentFwd", false, conf, CONF_agentfwd);
@@ -1007,6 +1009,8 @@ void load_open_settings(settings_r *sesskey, Conf *conf)
          * we used to allow; migrate them */
         if (sshprot == 1)      sshprot = 0; /* => "SSH-1 only" */
         else if (sshprot == 2) sshprot = 3; /* => "SSH-2 only" */
+        // Added automatic fallback ssh-1
+        // int sshprot = 2;
         conf_set_int(conf, CONF_sshprot, sshprot);
     }
     gpps(sesskey, "LogHost", "", conf, CONF_loghost);

@@ -407,12 +407,12 @@ static void ssh2_userauth_process_queue(PacketProtocolLayer *ppl)
             s->cur_prompt->name = dupstr("SSH login name");
             add_prompt(s->cur_prompt, dupstr("login as: "), true);
             s->userpass_ret = seat_get_userpass_input(
-                s->ppl.seat, s->cur_prompt, NULL);
+                s->ppl.seat, s->cur_prompt, NULL, s->ppl.notty);
             while (1) {
                 while (s->userpass_ret < 0 &&
                        bufchain_size(s->ppl.user_input) > 0)
                     s->userpass_ret = seat_get_userpass_input(
-                        s->ppl.seat, s->cur_prompt, s->ppl.user_input);
+                        s->ppl.seat, s->cur_prompt, s->ppl.user_input, s->ppl.notty);
 
                 if (s->userpass_ret >= 0)
                     break;
@@ -858,13 +858,13 @@ static void ssh2_userauth_process_queue(PacketProtocolLayer *ppl)
                                              s->publickey_comment),
                                    false);
                         s->userpass_ret = seat_get_userpass_input(
-                            s->ppl.seat, s->cur_prompt, NULL);
+                            s->ppl.seat, s->cur_prompt, NULL, s->ppl.notty);
                         while (1) {
                             while (s->userpass_ret < 0 &&
                                    bufchain_size(s->ppl.user_input) > 0)
                                 s->userpass_ret = seat_get_userpass_input(
                                     s->ppl.seat, s->cur_prompt,
-                                    s->ppl.user_input);
+                                    s->ppl.user_input, s->ppl.notty);
 
                             if (s->userpass_ret >= 0)
                                 break;
@@ -1340,12 +1340,12 @@ static void ssh2_userauth_process_queue(PacketProtocolLayer *ppl)
                      * user's response(s).
                      */
                     s->userpass_ret = seat_get_userpass_input(
-                        s->ppl.seat, s->cur_prompt, NULL);
+                        s->ppl.seat, s->cur_prompt, NULL, s->ppl.notty);
                     while (1) {
                         while (s->userpass_ret < 0 &&
                                bufchain_size(s->ppl.user_input) > 0)
                             s->userpass_ret = seat_get_userpass_input(
-                                s->ppl.seat, s->cur_prompt, s->ppl.user_input);
+                                s->ppl.seat, s->cur_prompt, s->ppl.user_input, s->ppl.notty);
 
                         if (s->userpass_ret >= 0)
                             break;
@@ -1427,12 +1427,12 @@ static void ssh2_userauth_process_queue(PacketProtocolLayer *ppl)
                            false);
 
                 s->userpass_ret = seat_get_userpass_input(
-                    s->ppl.seat, s->cur_prompt, NULL);
+                    s->ppl.seat, s->cur_prompt, NULL, s->ppl.notty);
                 while (1) {
                     while (s->userpass_ret < 0 &&
                            bufchain_size(s->ppl.user_input) > 0)
                         s->userpass_ret = seat_get_userpass_input(
-                            s->ppl.seat, s->cur_prompt, s->ppl.user_input);
+                            s->ppl.seat, s->cur_prompt, s->ppl.user_input, s->ppl.notty);
 
                     if (s->userpass_ret >= 0)
                         break;
@@ -1545,13 +1545,13 @@ static void ssh2_userauth_process_queue(PacketProtocolLayer *ppl)
                      */
                     while (!got_new) {
                         s->userpass_ret = seat_get_userpass_input(
-                            s->ppl.seat, s->cur_prompt, NULL);
+                            s->ppl.seat, s->cur_prompt, NULL, s->ppl.notty);
                         while (1) {
                             while (s->userpass_ret < 0 &&
                                    bufchain_size(s->ppl.user_input) > 0)
                                 s->userpass_ret = seat_get_userpass_input(
                                     s->ppl.seat, s->cur_prompt,
-                                    s->ppl.user_input);
+                                    s->ppl.user_input, s->ppl.notty);
 
                             if (s->userpass_ret >= 0)
                                 break;

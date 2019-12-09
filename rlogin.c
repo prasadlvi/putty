@@ -233,7 +233,7 @@ static const char *rlogin_init(Seat *seat, Backend **backend_handle,
         rlogin->prompt->from_server = false;
         rlogin->prompt->name = dupstr("Rlogin login name");
         add_prompt(rlogin->prompt, dupstr("rlogin username: "), true);
-        ret = seat_get_userpass_input(rlogin->seat, rlogin->prompt, NULL);
+        ret = seat_get_userpass_input(rlogin->seat, rlogin->prompt, NULL, false);
         if (ret >= 0) {
             /* Next terminal output will come from server */
             seat_set_trust_status(rlogin->seat, false);
@@ -282,7 +282,7 @@ static size_t rlogin_send(Backend *be, const char *buf, size_t len)
          * We're still prompting for a username, and aren't talking
          * directly to the network connection yet.
          */
-        int ret = seat_get_userpass_input(rlogin->seat, rlogin->prompt, &bc);
+        int ret = seat_get_userpass_input(rlogin->seat, rlogin->prompt, &bc, false);
         if (ret >= 0) {
             /* Next terminal output will come from server */
             seat_set_trust_status(rlogin->seat, false);

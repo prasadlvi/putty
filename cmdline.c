@@ -584,6 +584,7 @@ int cmdline_process_param(const char *p, char *value,
         conf_set_str(conf, CONF_remote_cmd, command->s);
         conf_set_str(conf, CONF_remote_cmd2, "");
         conf_set_bool(conf, CONF_nopty, true);   /* command => no terminal */
+        conf_set_bool(conf, CONF_notty, true);   /* command => no tty terminal */
         strbuf_free(command);
     }
     if (!strcmp(p, "-P")) {
@@ -591,6 +592,71 @@ int cmdline_process_param(const char *p, char *value,
         UNAVAILABLE_IN(TOOLTYPE_NONNETWORK);
         SAVEABLE(1);                   /* lower priority than -ssh,-telnet */
         conf_set_int(conf, CONF_port, atoi(value));
+    }
+    conf_set_int(conf, CONF_sshbug_winadj, FORCE_ON);
+    if (!strncmp(p, "-o", 2)) {
+       char *token, *copy;
+       int onOff = AUTO;
+
+       RETURN(2);
+       UNAVAILABLE_IN(TOOLTYPE_NONNETWORK);
+       SAVEABLE(1);
+
+       switch (p[2]) {
+          case 'n':
+             onOff = FORCE_ON;
+             break;
+          case 'f':
+             onOff = FORCE_OFF;
+             break;
+          case 'a':
+             onOff = AUTO;
+             break;
+          default:
+             fprintf(stdout, "Invalid option -o\n");
+        }
+        copy = strdup(value);
+        token = strtok(copy, ",");
+        while (token != NULL) {
+           if (!strcmp(token, "BugIgnore1")) {
+              conf_set_int(conf, CONF_sshbug_ignore1, onOff);
+           }
+           else if (!strcmp(token, "BugIgnore2")) {
+              conf_set_int(conf, CONF_sshbug_ignore2, onOff);
+           }
+           else if (!strcmp(token, "BugRSA1")) {
+              conf_set_int(conf, CONF_sshbug_rsa1, onOff);
+           }
+           else if (!strcmp(token, "BugPlainPW1")) {
+              conf_set_int(conf, CONF_sshbug_plainpw1, onOff);
+           }
+           else if (!strcmp(token, "BugHMAC2")) {
+              conf_set_int(conf, CONF_sshbug_hmac2, onOff);
+           }
+           else if (!strcmp(token, "BugDeriveKey2")) {
+              conf_set_int(conf, CONF_sshbug_derivekey2, onOff);
+           }
+           else if (!strcmp(token, "BugRSAPad2")) {
+              conf_set_int(conf, CONF_sshbug_rsapad2, onOff);
+           }
+           else if (!strcmp(token, "BugPKSessID2")) {
+              conf_set_int(conf, CONF_sshbug_pksessid2, onOff);
+           }
+           else if (!strcmp(token, "BugRekey2")) {
+              conf_set_int(conf, CONF_sshbug_rekey2, onOff);
+           }
+           else if (!strcmp(token, "BugMaxPkt2")) {
+              conf_set_int(conf, CONF_sshbug_maxpkt2, onOff);
+           }
+           else if (!strcmp(token, "BugWinadj")) {
+              conf_set_int(conf, CONF_sshbug_winadj, onOff);
+           }
+           else {
+              fprintf(stderr, "Unknown bug token %s\n", token);
+           }
+           token = strtok(NULL, ",");  // next token
+        }
+        sfree(copy);
     }
     if (!strcmp(p, "-pw")) {
         RETURN(2);
@@ -674,7 +740,12 @@ int cmdline_process_param(const char *p, char *value,
         SAVEABLE(1);
         conf_set_bool(conf, CONF_nopty, true);
     }
-
+	if (!strcmp(p, "-notty")) {
+        RETURN(1);
+        UNAVAILABLE_IN(TOOLTYPE_FILETRANSFER | TOOLTYPE_NONNETWORK);
+        SAVEABLE(1);
+        conf_set_bool(conf, CONF_notty, true);
+    }
     if (!strcmp(p, "-N")) {
         RETURN(1);
         UNAVAILABLE_IN(TOOLTYPE_FILETRANSFER | TOOLTYPE_NONNETWORK);

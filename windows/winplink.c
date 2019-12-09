@@ -75,12 +75,12 @@ static bool plink_eof(Seat *seat)
     return false;   /* do not respond to incoming EOF with outgoing */
 }
 
-static int plink_get_userpass_input(Seat *seat, prompts_t *p, bufchain *input)
+static int plink_get_userpass_input(Seat *seat, prompts_t *p, bufchain *input, bool notty)
 {
     int ret;
     ret = cmdline_get_passwd_input(p);
     if (ret == -1)
-        ret = console_get_userpass_input(p);
+        ret = console_get_userpass_input(p, notty);
     return ret;
 }
 
@@ -174,11 +174,16 @@ static void usage(void)
     printf("  -N        don't start a shell/command (SSH-2 only)\n");
     printf("  -nc host:port\n");
     printf("            open tunnel in place of session (SSH-2 only)\n");
+    printf("  -o[n|f|a] CSV\n");
+    printf("            set bugfix on/off/auto for BugIgnore1, BugIgnore2, BugRSA1,\n");
+    printf("            BugPlainPW1, BugHMAC2, BugDeriveKey2, BugRSAPad2, BugWinadj\n");
+    printf("            BugPKSessID2, BugRekey2, BugMaxPkt2\n");
     printf("  -sshlog file\n");
     printf("  -sshrawlog file\n");
     printf("            log protocol details to a file\n");
     printf("  -shareexists\n");
     printf("            test whether a connection-sharing upstream exists\n");
+    printf("  -notty    disable use of tty\n");
     exit(1);
 }
 
@@ -367,6 +372,7 @@ int main(int argc, char **argv)
             conf_set_str(conf, CONF_remote_cmd, cmdbuf->s);
             conf_set_str(conf, CONF_remote_cmd2, "");
             conf_set_bool(conf, CONF_nopty, true);  /* command => no tty */
+            conf_set_bool(conf, CONF_notty, true);  /* command => force no tty */
 
             strbuf_free(cmdbuf);
             break;                     /* done with cmdline */

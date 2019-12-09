@@ -449,6 +449,7 @@ static void do_cmd(char *host, char *user, char *cmd)
         conf_set_bool(conf, CONF_ssh_subsys, false);
     }
     conf_set_bool(conf, CONF_nopty, true);
+    conf_set_bool(conf, CONF_notty, true);
 
     logctx = log_init(default_logpolicy, conf);
 
@@ -2195,6 +2196,7 @@ static void usage(void)
     printf("  -sshlog file\n");
     printf("  -sshrawlog file\n");
     printf("            log protocol details to a file\n");
+    printf("  -notty    disable use of tty\n");
     cleanup_exit(1);
 }
 
@@ -2247,6 +2249,7 @@ int psftp_main(int argc, char *argv[])
     do_defaults(NULL, conf);
     loaded_session = false;
 
+    conf_set_int(conf, CONF_sshbug_winadj, FORCE_ON);
     for (i = 1; i < argc; i++) {
         int ret;
         if (argv[i][0] != '-')

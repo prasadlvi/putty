@@ -816,7 +816,7 @@ struct SeatVtable {
      * ever do want to move password prompts into a dialog box, I'll
      * want a backend method for sending that notification.)
      */
-    int (*get_userpass_input)(Seat *seat, prompts_t *p, bufchain *input);
+    int (*get_userpass_input)(Seat *seat, prompts_t *p, bufchain *input, bool notty);
 
     /*
      * Notify the seat that the process running at the other end of
@@ -974,8 +974,8 @@ static inline size_t seat_output(
 static inline bool seat_eof(Seat *seat)
 { return seat->vt->eof(seat); }
 static inline int seat_get_userpass_input(
-    Seat *seat, prompts_t *p, bufchain *input)
-{ return seat->vt->get_userpass_input(seat, p, input); }
+    Seat *seat, prompts_t *p, bufchain *input, bool notty)
+{ return seat->vt->get_userpass_input(seat, p, input, notty); }
 static inline void seat_notify_remote_exit(Seat *seat)
 { seat->vt->notify_remote_exit(seat); }
 static inline void seat_update_specials_menu(Seat *seat)
@@ -1037,7 +1037,7 @@ static inline size_t seat_stderr_pl(Seat *seat, ptrlen data)
 size_t nullseat_output(
     Seat *seat, bool is_stderr, const void *data, size_t len);
 bool nullseat_eof(Seat *seat);
-int nullseat_get_userpass_input(Seat *seat, prompts_t *p, bufchain *input);
+int nullseat_get_userpass_input(Seat *seat, prompts_t *p, bufchain *input, bool notty);
 void nullseat_notify_remote_exit(Seat *seat);
 void nullseat_connection_fatal(Seat *seat, const char *message);
 void nullseat_update_specials_menu(Seat *seat);
@@ -1087,7 +1087,7 @@ bool console_set_trust_status(Seat *seat, bool trusted);
 /*
  * Other centralised seat functions.
  */
-int filexfer_get_userpass_input(Seat *seat, prompts_t *p, bufchain *input);
+int filexfer_get_userpass_input(Seat *seat, prompts_t *p, bufchain *input, bool notty);
 
 /*
  * Data type 'TermWin', which is a vtable encapsulating all the
@@ -1265,6 +1265,7 @@ NORETURN void cleanup_exit(int);
     X(STR, NONE, remote_cmd) \
     X(STR, NONE, remote_cmd2) /* fallback if remote_cmd fails; never loaded or saved */ \
     X(BOOL, NONE, nopty) \
+    X(BOOL, NONE, notty) /* no tty configuration 0 or 1 */ \
     X(BOOL, NONE, compression) \
     X(INT, INT, ssh_kexlist) \
     X(INT, INT, ssh_hklist) \
@@ -1640,7 +1641,7 @@ void term_provide_backend(Terminal *term, Backend *backend);
 void term_provide_logctx(Terminal *term, LogContext *logctx);
 void term_set_focus(Terminal *term, bool has_focus);
 char *term_get_ttymode(Terminal *term, const char *mode);
-int term_get_userpass_input(Terminal *term, prompts_t *p, bufchain *input);
+int term_get_userpass_input(Terminal *term, prompts_t *p, bufchain *input, bool notty);
 void term_set_trust_status(Terminal *term, bool trusted);
 void term_keyinput(Terminal *, int codepage, const void *buf, int len);
 void term_keyinputw(Terminal *, const wchar_t * widebuf, int len);
@@ -1924,7 +1925,7 @@ bool have_ssh_host_key(const char *host, int port, const char *keytype);
  * that aren't equivalents to things in windlg.c et al.
  */
 extern bool console_batch_mode, console_antispoof_prompt;
-int console_get_userpass_input(prompts_t *p);
+int console_get_userpass_input(prompts_t *p, bool notty);
 bool is_interactive(void);
 void console_print_error_msg(const char *prefix, const char *msg);
 void console_print_error_msg_fmt_v(

@@ -136,6 +136,7 @@ struct Ssh {
     char *deferred_abort_message;
 
     bool need_random_unref;
+    bool notty;
 };
 
 
@@ -784,7 +785,7 @@ static const char *connect_to_host(
      * fallback between versions), so set it now.
      */
     sshprot = conf_get_int(ssh->conf, CONF_sshprot);
-    assert(sshprot == 0 || sshprot == 3);
+    assert(sshprot == 0 || sshprot == 3); // /* Added */ || sshprot == 2);  // Allow fallback to SSH-1
     if (sshprot == 0)
         /* SSH-1 only */
         ssh->version = 1;
@@ -792,6 +793,8 @@ static const char *connect_to_host(
         /* SSH-2 only */
         ssh->version = 2;
     }
+
+	ssh->notty = conf_get_bool(ssh->conf, CONF_notty);
 
     /*
      * Set up the initial BPP that will do the version string

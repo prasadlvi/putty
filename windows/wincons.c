@@ -428,7 +428,7 @@ static void console_write(HANDLE hout, ptrlen data)
     WriteFile(hout, data.ptr, data.len, &dummy, NULL);
 }
 
-int console_get_userpass_input(prompts_t *p)
+int console_get_userpass_input(prompts_t *p, bool notty)
 {
     HANDLE hin = INVALID_HANDLE_VALUE, hout = INVALID_HANDLE_VALUE;
     size_t curr_prompt;
@@ -462,9 +462,9 @@ int console_get_userpass_input(prompts_t *p)
      * And if we have anything to print, we need standard output.
      */
     if ((p->name_reqd && p->name) || p->instruction || p->n_prompts) {
-        hout = GetStdHandle(STD_OUTPUT_HANDLE);
+        hout = GetStdHandle(STD_ERROR_HANDLE);
         if (hout == INVALID_HANDLE_VALUE) {
-            fprintf(stderr, "Cannot get standard output handle\n");
+            fprintf(stderr, "Cannot get standard error output handle\n");
             cleanup_exit(1);
         }
     }

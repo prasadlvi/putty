@@ -5827,12 +5827,12 @@ static bool win_seat_eof(Seat *seat)
 }
 
 static int win_seat_get_userpass_input(
-    Seat *seat, prompts_t *p, bufchain *input)
+    Seat *seat, prompts_t *p, bufchain *input, bool notty)
 {
     int ret;
     ret = cmdline_get_passwd_input(p);
     if (ret == -1)
-        ret = term_get_userpass_input(term, p, input);
+        ret = term_get_userpass_input(term, p, input, notty);
     return ret;
 }
 

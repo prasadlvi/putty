@@ -47,7 +47,7 @@ char *get_random_data(int len, const char *device)
 #define console_get_userpass_input console_get_userpass_input_diagnostic
 int nprompts, promptsgot;
 const char *prompts[3];
-int console_get_userpass_input(prompts_t *p)
+int console_get_userpass_input(prompts_t *p, bool notty)
 {
     size_t i;
     int ret = 1;
@@ -767,7 +767,7 @@ int main(int argc, char **argv)
                 p->from_server = false;
                 p->name = dupstr("SSH key passphrase");
                 add_prompt(p, dupstr("Enter passphrase to load key: "), false);
-                ret = console_get_userpass_input(p);
+                ret = console_get_userpass_input(p, false);
                 assert(ret >= 0);
                 if (!ret) {
                     free_prompts(p);
@@ -911,7 +911,7 @@ int main(int argc, char **argv)
         p->name = dupstr("New SSH key passphrase");
         add_prompt(p, dupstr("Enter passphrase to save key: "), false);
         add_prompt(p, dupstr("Re-enter passphrase to verify: "), false);
-        ret = console_get_userpass_input(p);
+        ret = console_get_userpass_input(p, false);
         assert(ret >= 0);
         if (!ret) {
             free_prompts(p);

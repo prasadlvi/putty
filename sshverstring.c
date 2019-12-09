@@ -84,7 +84,7 @@ BinaryPacketProtocol *ssh_verstring_new(
          * extension space.
          */
         s->prefix_wanted = PTRLEN_LITERAL(
-            "SSHCONNECTION@putty.projects.tartarus.org-");
+            "SSHCONNECTION@putty.tartarus.org-");
     }
     assert(s->prefix_wanted.len <= PREFIX_MAXLEN);
 
