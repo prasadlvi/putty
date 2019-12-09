@@ -79,6 +79,7 @@ use PSCP:
 \c   -logoverwrite
 \c   -logappend
 \c             control what happens when a log file already exists
+\c   -notty    disable use tty
 
 (PSCP's interface is much like the Unix \c{scp} command, if you're
 familiar with that.)

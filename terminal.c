@@ -7522,7 +7522,7 @@ static inline void term_write(Terminal *term, ptrlen data)
  * Process some terminal data in the course of username/password
  * input.
  */
-int term_get_userpass_input(Terminal *term, prompts_t *p, bufchain *input)
+int term_get_userpass_input(Terminal *term, prompts_t *p, bufchain *input, bool notty)
 {
     struct term_userpass_state *s = (struct term_userpass_state *)p->data;
     if (!s) {

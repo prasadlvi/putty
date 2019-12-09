@@ -946,7 +946,7 @@ int main(int argc, char **argv)
                 p->from_server = false;
                 p->name = dupstr("SSH key passphrase");
                 add_prompt(p, dupstr("Enter passphrase to load key: "), false);
-                ret = console_get_userpass_input(p);
+                ret = console_get_userpass_input(p, false);
                 assert(ret >= 0);
                 if (!ret) {
                     free_prompts(p);
@@ -1097,7 +1097,7 @@ int main(int argc, char **argv)
         p->name = dupstr("New SSH key passphrase");
         add_prompt(p, dupstr("Enter passphrase to save key: "), false);
         add_prompt(p, dupstr("Re-enter passphrase to verify: "), false);
-        ret = console_get_userpass_input(p);
+        ret = console_get_userpass_input(p, false);
         assert(ret >= 0);
         if (!ret) {
             free_prompts(p);

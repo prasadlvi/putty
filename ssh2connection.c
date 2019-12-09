@@ -933,7 +933,7 @@ static void ssh2_set_window(struct ssh2_channel *c, int newwin)
             !(s->ppl.remote_bugs & BUG_CHOKES_ON_WINADJ)) {
             up = snew(unsigned);
             *up = newwin - c->locwindow;
-            pktout = ssh2_chanreq_init(c, "winadj@putty.projects.tartarus.org",
+            pktout = ssh2_chanreq_init(c, "winadj@putty.tartarus.org",
                                        ssh2_handle_winadj_response, up);
             pq_push(s->ppl.out_pq, pktout);
 
@@ -990,12 +990,12 @@ static void ssh2_connection_process_queue(PacketProtocolLayer *ppl)
             s->antispoof_prompt,
             dupstr("Access granted. Press Return to begin session. "), false);
         s->antispoof_ret = seat_get_userpass_input(
-            s->ppl.seat, s->antispoof_prompt, NULL);
+            s->ppl.seat, s->antispoof_prompt, NULL, s->ppl.notty);
         while (1) {
             while (s->antispoof_ret < 0 &&
                    bufchain_size(s->ppl.user_input) > 0)
                 s->antispoof_ret = seat_get_userpass_input(
-                    s->ppl.seat, s->antispoof_prompt, s->ppl.user_input);
+                    s->ppl.seat, s->antispoof_prompt, s->ppl.user_input, s->ppl.notty);
 
             if (s->antispoof_ret >= 0)
                 break;
@@ -1451,12 +1451,12 @@ static void ssh2channel_window_override_removed(SshChannel *sc)
 
 static void ssh2channel_hint_channel_is_simple(SshChannel *sc)
 {
-    struct ssh2_channel *c = container_of(sc, struct ssh2_channel, sc);
-    struct ssh2_connection_state *s = c->connlayer;
+    // struct ssh2_channel *c = container_of(sc, struct ssh2_channel, sc);
+    // struct ssh2_connection_state *s = c->connlayer;
 
-    PktOut *pktout = ssh2_chanreq_init(
-        c, "simple@putty.projects.tartarus.org", NULL, NULL);
-    pq_push(s->ppl.out_pq, pktout);
+    // PktOut *pktout = ssh2_chanreq_init(
+    //    c, "simple@putty.projects.tartarus.org", NULL, NULL);
+    // pq_push(s->ppl.out_pq, pktout);
 }
 
 static SshChannel *ssh2_lportfwd_open(

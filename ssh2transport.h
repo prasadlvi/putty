@@ -152,6 +152,11 @@ struct ssh2_transport_state {
      */
     char *fullhostname;
 
+    /*
+     * used to disable tty option
+     */
+	bool notty;
+
     /* shgss is outside the ifdef on purpose to keep APIs simple. If
      * NO_GSSAPI is not defined, then it's just an opaque structure
      * tag and the pointer will be NULL. */

@@ -378,12 +378,12 @@ static void ssh1_connection_process_queue(PacketProtocolLayer *ppl)
             s->antispoof_prompt,
             dupstr("Access granted. Press Return to begin session. "), false);
         s->antispoof_ret = seat_get_userpass_input(
-            s->ppl.seat, s->antispoof_prompt, NULL);
+            s->ppl.seat, s->antispoof_prompt, NULL, s->ppl.notty);
         while (1) {
             while (s->antispoof_ret < 0 &&
                    bufchain_size(s->ppl.user_input) > 0)
                 s->antispoof_ret = seat_get_userpass_input(
-                    s->ppl.seat, s->antispoof_prompt, s->ppl.user_input);
+                    s->ppl.seat, s->antispoof_prompt, s->ppl.user_input, s->ppl.notty);
 
             if (s->antispoof_ret >= 0)
                 break;

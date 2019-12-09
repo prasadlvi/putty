@@ -59,6 +59,7 @@ struct PacketProtocolLayer {
 
     /* Known bugs in the remote implementation. */
     unsigned remote_bugs;
+    bool notty;
 };
 
 static inline void ssh_ppl_process_queue(PacketProtocolLayer *ppl)

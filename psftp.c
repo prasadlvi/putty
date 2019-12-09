@@ -2553,6 +2553,7 @@ static void usage(void)
     printf("  -logoverwrite\n");
     printf("  -logappend\n");
     printf("            control what happens when a log file already exists\n");
+    printf("  -notty    disable use of tty\n");
     cleanup_exit(1);
 }
 
@@ -2703,6 +2704,7 @@ static int psftp_connect(char *userhost, char *user, int portnumber)
     conf_set_str(conf, CONF_remote_cmd, "sftp");
     conf_set_bool(conf, CONF_ssh_subsys, true);
     conf_set_bool(conf, CONF_nopty, true);
+    conf_set_bool(conf, CONF_notty, true);
 
     /*
      * Set up fallback option, for SSH-1 servers or servers with the

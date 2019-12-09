@@ -417,6 +417,11 @@ static void console_open(FILE **outfp, int *infd)
         *outfp = stderr;
     }
 }
+static void console_open_notty(FILE **outfp, int *infd)
+{
+    *infd = 0;
+    *outfp = stderr;
+}
 static void console_close(FILE *outfp, int infd)
 {
     if (outfp != stderr)
@@ -429,7 +434,7 @@ static void console_write(FILE *outfp, ptrlen data)
     fflush(outfp);
 }
 
-int console_get_userpass_input(prompts_t *p)
+int console_get_userpass_input(prompts_t *p, bool notty)
 {
     size_t curr_prompt;
     FILE *outfp = NULL;
@@ -447,7 +452,14 @@ int console_get_userpass_input(prompts_t *p)
     if (p->n_prompts && console_batch_mode)
         return 0;
 
-    console_open(&outfp, &infd);
+    if (!notty)
+    {
+        console_open(&outfp, &infd);
+    }
+    else
+    {
+        console_open_notty(&outfp, &infd);
+    }
 
     /*
      * Preamble.
