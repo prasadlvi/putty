@@ -35,6 +35,22 @@ void cmdline_error(const char *fmt, ...)
     exit(1);
 }
 
+/* Extension: Read window size from a file when there is no controlling terminal */
+static int read_winsz_from_file(const char *fname, int *col, int *row)
+{
+    FILE *winsz;
+
+    *col = 0;
+    *row = 0;
+    winsz = fopen(fname, "r");
+    if (winsz) {
+        fscanf(winsz, "%d,%d\n", col, row);
+        fclose(winsz);
+        return 0;
+    }
+    return -1;
+}
+
 static bool local_tty = false; /* do we have a local tty? */
 
 static Backend *backend;
@@ -510,6 +526,10 @@ static void usage(void)
     printf("            use 'command' as local proxy\n");
     printf("  -sercfg configuration-string (e.g. 19200,8,n,1,X)\n");
     printf("            Specify the serial configuration (serial only)\n");
+    printf("  -termsz filename\n");
+    printf("            Update tty size through the use of a text file\n");
+    printf("            Useful when stdin is not a tty\n");
+    printf("            Format: col,row<LF>\n");
     printf("The following options only apply to SSH connections:\n");
     printf("  -pw passw login with specified password\n");
     printf("  -D [listen-IP:]listen-port\n");
@@ -608,16 +628,22 @@ static bool plink_pw_setup(void *vctx, pollwrapper *pw)
     return true;
 }
 
-static void plink_pw_check(void *vctx, pollwrapper *pw)
+static void plink_pw_check_termsz(void *vctx, pollwrapper *pw, char *termsz)
 {
+    int col, row;
     if (pollwrap_check_fd_rwx(pw, signalpipe[0], SELECT_R)) {
         char c[1];
         struct winsize size;
         if (read(signalpipe[0], c, 1) <= 0)
             /* ignore error */;
         /* ignore its value; it'll be `x' */
-        if (ioctl(STDIN_FILENO, TIOCGWINSZ, (void *)&size) >= 0)
+        if (ioctl(STDIN_FILENO, TIOCGWINSZ, (void *)&size) >= 0) {
             backend_size(backend, size.ws_col, size.ws_row);
+        } else if (termsz) {
+            read_winsz_from_file(termsz, &col, &row);
+            if (col && row)
+                backend_size(backend, col, row);
+        }
     }
 
     if (pollwrap_check_fd_rwx(pw, STDIN_FILENO, SELECT_R)) {
@@ -651,6 +677,11 @@ static void plink_pw_check(void *vctx, pollwrapper *pw)
     }
 }
 
+static void plink_pw_check(void *vctx, pollwrapper *pw)
+{
+    plink_pw_check_termsz(vctx, pw, NULL);
+}
+
 static bool plink_continue(void *vctx, bool found_any_fd,
                            bool ran_any_callback)
 {
@@ -669,6 +700,8 @@ int main(int argc, char **argv)
     bool just_test_share_exists = false;
     struct winsize size;
     const struct BackendVtable *backvt;
+    char *termsz = NULL;
+    int col, row;
 
     /*
      * Initialise port and protocol to sensible defaults. (These
@@ -766,6 +799,15 @@ int main(int argc, char **argv)
             sanitise_stderr = FORCE_OFF;
         } else if (!strcmp(p, "-no-antispoof")) {
             console_antispoof_prompt = false;
+        } else if (!strcmp(p, "-termsz")) {
+            if (argc <= 1) {
+                fprintf(stderr,
+                        "plink: option \"-termsz\" requires an argument\n");
+                errors = true;
+            } else {
+                --argc;
+                termsz = *++argv;
+            }
         } else if (*p != '-') {
             strbuf *cmdbuf = strbuf_new();
 
@@ -866,6 +908,12 @@ int main(int argc, char **argv)
     if (ioctl(STDIN_FILENO, TIOCGWINSZ, &size) >= 0) {
         conf_set_int(conf, CONF_width, size.ws_col);
         conf_set_int(conf, CONF_height, size.ws_row);
+    } else if (termsz) {
+        read_winsz_from_file(termsz, &col, &row);
+        if (col && row) {
+            conf_set_int(conf, CONF_width, col);
+            conf_set_int(conf, CONF_height, row);
+        }
     }
 
     /*
@@ -959,7 +1007,7 @@ int main(int argc, char **argv)
     atexit(cleanup_termios);
     seat_echoedit_update(plink_seat, 1, 1);
 
-    cli_main_loop(plink_pw_setup, plink_pw_check, plink_continue, NULL);
+    cli_main_loop_termsz(plink_pw_setup, plink_pw_check, plink_pw_check_termsz, plink_continue, NULL, termsz);
 
     exitcode = backend_exitcode(backend);
     if (exitcode < 0) {

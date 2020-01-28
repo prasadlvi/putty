@@ -446,12 +446,17 @@ static inline bool pollwrap_check_fd_rwx(pollwrapper *pw, int fd, int rwx)
  */
 typedef bool (*cliloop_pw_setup_t)(void *ctx, pollwrapper *pw);
 typedef void (*cliloop_pw_check_t)(void *ctx, pollwrapper *pw);
+typedef void (*cliloop_pw_check_termsz_t)(void *ctx, pollwrapper *pw, char *termsz);
 typedef bool (*cliloop_continue_t)(void *ctx, bool found_any_fd,
                                    bool ran_any_callback);
 
 void cli_main_loop(cliloop_pw_setup_t pw_setup,
                    cliloop_pw_check_t pw_check,
                    cliloop_continue_t cont, void *ctx);
+                   
+void cli_main_loop_termsz(cliloop_pw_setup_t pw_setup,
+                   cliloop_pw_check_t pw_check, cliloop_pw_check_termsz_t pw_check_termsz,
+                   cliloop_continue_t cont, void *ctx, char *termsz);                   
 
 bool cliloop_no_pw_setup(void *ctx, pollwrapper *pw);
 void cliloop_no_pw_check(void *ctx, pollwrapper *pw);

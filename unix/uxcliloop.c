@@ -6,6 +6,14 @@ void cli_main_loop(cliloop_pw_setup_t pw_setup,
                    cliloop_pw_check_t pw_check,
                    cliloop_continue_t cont, void *ctx)
 {
+    cli_main_loop_termsz(pw_setup, pw_check, NULL, cont, ctx, NULL);
+}
+
+void cli_main_loop_termsz(cliloop_pw_setup_t pw_setup,
+                   cliloop_pw_check_t pw_check, 
+                   cliloop_pw_check_termsz_t pw_check_termsz,
+                   cliloop_continue_t cont, void *ctx, char *termsz)
+{
     unsigned long now = GETTICKCOUNT();
 
     int *fdlist = NULL;
@@ -100,7 +108,11 @@ void cli_main_loop(cliloop_pw_setup_t pw_setup,
                 select_result(fd, SELECT_W);
         }
 
-        pw_check(ctx, pw);
+        if (!termsz) {
+            pw_check(ctx, pw);
+        } else {
+            pw_check_termsz(ctx, pw, termsz);
+        }
 
         bool ran_callback = run_toplevel_callbacks();
 
